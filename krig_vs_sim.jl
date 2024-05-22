@@ -1,7 +1,7 @@
-using GeoStats, JLD2, GLMakie, KernelDensity
+using GeoStats, JLD2, KernelDensity
 using Random
-#using CairoMakie
-using GLMakie
+using CairoMakie
+#using GLMakie
 
 Random.seed!(1)
 
@@ -139,14 +139,14 @@ xhigh = 29.25
 ylow = 19.75
 yhigh = 29.25
 
-ax = Axis(f[1,1],  xticklabelsize=0, ylabel="Station 1 marginal density",
+ax = Axis(f[1,1],  xticklabelsize=0, ylabel="Location 1 marginal density",
           ylabelsize=12, title="A", titlealign=:left)
 lines!(ax, ik.itp.itp.ranges[1], sum(ik.itp.itp.itp, dims=1)[:] ./ sqrt(sum(ik.itp.itp.itp)) ; color=:blue)
 lines!(ax, is.itp.itp.ranges[1], sum(is.itp.itp.itp, dims=1)[:] ./ sqrt(sum(is.itp.itp.itp)) ; color=:red)
 xlims!(ax, xlow, xhigh)
 ylims!(ax, 0., 0.22)
 
-ax = Axis(f[2,2],  yticklabelsize=0, xlabel="Station 2 marginal density",
+ax = Axis(f[2,2],  yticklabelsize=0, xlabel="Location 2 marginal density",
          xlabelsize=12, title="C", titlealign=:left)
 lines!(ax, sum(ik.itp.itp.itp, dims=2)[:] ./ sqrt(sum(ik.itp.itp.itp)),
        ik.itp.itp.ranges[2] ; color=:blue, label="Kriging density")
@@ -159,8 +159,8 @@ leg = Legend(f[1, 2], ax)
 leg.framecolor = :white
 
 
-ax = Axis(f[2,1], aspect=1, xlabel="Tmax location 1 (deg C)",
-          ylabel="Tmax (C) station 2", title="B", titlealign=:left)
+ax = Axis(f[2,1], aspect=1, xlabel="Tmax location 1 [C]",
+          ylabel="Tmax location 2 [C]", title="B", titlealign=:left)
 contour!(ax, ik.itp.itp.ranges[1], ik.itp.itp.ranges[2], ik.itp.itp.itp ;
         levels=5, color=:blue)
 contour!(ax, is.itp.itp.ranges[1], is.itp.itp.ranges[2], is.itp.itp.itp ;
@@ -174,9 +174,9 @@ s_cor = string(cor(sim_samp')[1, 2])[1:5]
 text!(ax, 25.7, 20.5, ; text="Kriging corr: $k_cor", color=:blue, fontsize=12)
 text!(ax, 25.7, 20, ; text="Simulation corr: $s_cor", color=:red, fontsize=12)
 
-#save("krig_vs_sim.pdf", f)
+save("figs/fig07.pdf", f)
 
-f
+#f
 
 mae(x, y) = mean(abs.(x .- y))
 
@@ -200,6 +200,5 @@ println(mean(sim_samp[2,good]) - true_tmax[2], " ", std(sim_samp[2,good]))
 lines!(ax, [true_tmax[2], true_tmax[2]], [0, .4], color=:black, linestyle=:dash, label="Measured S1 Tmax")
 axislegend(ax, labelsize=8, patchsize=(12,8))
 
-#save("cond_sim.pdf", f)
-
-f
+save("figs/fig08.pdf", f)
+#f

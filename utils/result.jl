@@ -1,3 +1,5 @@
+using GeoStats, DataFrames
+
 # location result
 struct Result
     vario::EmpiricalVariogram

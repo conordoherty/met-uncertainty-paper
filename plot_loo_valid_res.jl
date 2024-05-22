@@ -1,6 +1,6 @@
 using JLD2, Statistics
-using GLMakie
-#using CairoMakie
+#using GLMakie
+using CairoMakie
 
 ints = [.99:-.01:.01...]
 mae(x, y) = x - y .|> abs |> mean
@@ -21,7 +21,7 @@ ax = Axis(f[2,1], ylabel="Prediction interval bias", xlabel="Day of year", title
 barplot!(ax, 1:365, bias_loc ; gap=0)
 xlims!(ax, -1,367)
 
-#save("fig1.pdf", f)
+save("figs/fig04.pdf", f)
 
 f = Figure(size=(900, 300))
 
@@ -42,6 +42,5 @@ ax = Axis(f[1,3], ylabel="Actual fraction within interval", xlabel="Theoretical 
 lines!(ax, ints, ints, color=:black, linestyle=:dash) 
 lines!(ax, ints, int_day_loc[:, argmin(bias_loc)]) 
 
-#save("fig2.pdf", f)
-
-f
+save("figs/fig05.pdf", f)
+#f

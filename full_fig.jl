@@ -1,7 +1,7 @@
 using GeoStats, JLD2
 using ProgressMeter
-using GLMakie
-#using CairoMakie
+#using GLMakie
+using CairoMakie
 
 include("utils/ghcn_data.jl")
 include("utils/ols_trend.jl")
@@ -100,5 +100,5 @@ for (i, DOY) in enumerate([1, 91, 182, 274])
     Colorbar(g[1,2], h, label="Magnitude of 90% prediction interval (deg C)")
 end
 
-#save("space_time_fig.pdf", f)
-f
+save("figs/fig06.pdf", f)
+#f

@@ -1,5 +1,9 @@
-using GeoStats, JLD2
+using GeoStats
+using JLD2
 using ProgressMeter
+using Random
+
+Random.seed!(1)
 
 include("utils/ghcn_data.jl")
 include("utils/ols_trend.jl")
@@ -106,7 +110,8 @@ function run_location(ind, doy)
            detrend_quants[1, :])
 end
 
-@showprogress Threads.@threads for DOY = 1:365
+#@showprogress Threads.@threads for DOY = 1:365
+@showprogress Threads.@threads for DOY = 1:4
     res = [run_location(i, DOY) for i = 1:size(df, 1)]
     jldsave("output/res_$DOY.jld2", res=res)
 end
