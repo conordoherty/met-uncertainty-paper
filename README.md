@@ -6,6 +6,8 @@ Download `daymet_v4_stnxval_tmax_na_2022.nc` from [ORNL DAAC](https://daac.ornl.
 
 ## Running the code 
 
+In the Julia REPL, run `] activate .` to activate the environment and `] instantiate` to install dependencies.
+
 1. Run
 
 ```
