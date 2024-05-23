@@ -6,29 +6,41 @@ Download `daymet_v4_stnxval_tmax_na_2022.nc` from [ORNL DAAC](https://daac.ornl.
 
 ## Running the code 
 
-In the Julia REPL, run `] activate .` to activate the environment and `] instantiate` to install dependencies.
+### Setup
 
-1. Run
-
-```
-julia loo_validation.jl -t [number of threads]
-```
-
-to do the main leave-one-out cross-validation and write the results to
-`output`. This takes ~20 min using 4 threads on my laptop.
-
-2. Run 
+In the Julia REPL, run the following commands to activate the environment
+and install the dependencies.
 
 ```
-julia agg_loo_res.jl -t [number of threads]
+using Pkg
+Pkg.activate(".")
+Pkg.instantiate()
 ```
 
-to aggregate the results from the previous step and compute the UQ accuracy
-statistics using nested symmetric prediction intervals.
+### Predictive distribution validation for CA in 2022
 
-3. `plot_loo_valid_res.jl` creates figures 4 and 5.
+There are two scripts that can be run either from the REPL using `include("[...].jl")` or from the
+command line using `julia --project=. [...].jl`. Both scripts can be run multithreaded. Pass
+`-t [number of threads]` when starting the REPL or running the script from the command line.
 
-4. `full_fig.jl` creates figure 6.
+1. `loo_validation.jl` performs leave-one-out (LOO) cross-validation for each stations with
+data for each day of 2022. Results for each day are saved in `./output`. This runs in ~20 min
+using 4 threads on my laptop.
 
-5. `krig_vs_sim.jl` compares simulations from kriging versus conditional
-simulations for two nearby stations. It also creates figures 7 and 8.
+2. `agg_loo_res.jl` processes the output of the previous script to compute the actual coverage
+of theoretical predictive distributions. Results are saved in `./output`.
+
+### Figures
+
+1. `plot_loo_valid_res.jl` creates figures 4 and 5. It requires having run the LOO validation
+code described above.
+
+2. `full_fig.jl` generates uncertainty maps for four different days. It creates figure 6.
+
+3. `krig_vs_sim.jl` compares simulations from kriging versus conditional
+simulations for two nearby stations. It creates figures 7 and 8.
+
+4. `station_fig.jl` creates figure 1, which shows the locations of weather stations.
+
+5. `valid_process_fig.jl` creates figure 2, which shows how the actual coverage of
+theoretical prediction intervals is calculated.

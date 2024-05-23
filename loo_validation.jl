@@ -110,8 +110,7 @@ function run_location(ind, doy)
            detrend_quants[1, :])
 end
 
-#@showprogress Threads.@threads for DOY = 1:365
-@showprogress Threads.@threads for DOY = 1:4
+@showprogress Threads.@threads for DOY = 1:365
     res = [run_location(i, DOY) for i = 1:size(df, 1)]
     jldsave("output/res_$DOY.jld2", res=res)
 end
