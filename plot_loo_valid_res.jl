@@ -44,3 +44,26 @@ lines!(ax, ints, int_day_loc[:, argmin(bias_loc)])
 
 save("figs/fig05.pdf", f)
 #f
+
+median_doy = findfirst(mae_loc .== median(mae_loc))
+println("median MAE DOY: ", median_doy)
+println("median MAE: ", mae_loc[median_doy])
+worst_pred_int_median_ind = argmax(abs.(int_day_loc[:, median_doy]-ints))
+println("median worst pred int: ", ints[worst_pred_int_median_ind])
+println("median worst pred: ", int_day_loc[worst_pred_int_median_ind, median_doy])
+println("")
+
+low_doy = argmin(bias_loc)
+println("low worst DOY: ", low_doy)
+println("low worst bias: ", bias_loc[low_doy])
+worst_pred_int_low_ind = argmin(int_day_loc[:, low_doy]-ints)
+println("low worst pred int: ", ints[worst_pred_int_low_ind])
+println("low worst pred: ", int_day_loc[worst_pred_int_low_ind, low_doy])
+println("")
+
+high_doy = argmax(bias_loc)
+println("high worst DOY: ", high_doy)
+println("high worst bias: ", bias_loc[high_doy])
+worst_pred_int_high_ind = argmin(int_day_loc[:, high_doy]-ints)
+println("high worst pred int: ", ints[worst_pred_int_high_ind])
+println("high worst pred: ", int_day_loc[worst_pred_int_high_ind, high_doy])
