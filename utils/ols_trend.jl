@@ -1,5 +1,5 @@
 using Distances: euclidean
-using LinearAlgebra: I, pinv, norm
+using LinearAlgebra: I, pinv, norm, dot
 using NearestNeighbors
 
 make_X_mat(x, y, elev) = hcat(ones(length(x)), x, y, elev,)

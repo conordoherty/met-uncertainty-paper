@@ -34,9 +34,6 @@ ax = Axis(f[1,1], xlabel="Tmax [C]", ylabel="Density",
 ylims!(ax, 0, high_lim)
 xlims!(ax, pred_quants[1], pred_quants[end])
 
-#pdf = map(x -> cent_diff(x, pred_quants), 2:198)
-#lines!(ax, pred_quants, quants)
-
 cm = Reverse(:turbo)
 mid = 100
 for p = 5:5:99

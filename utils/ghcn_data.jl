@@ -27,7 +27,7 @@ end
 
 function check_in_bound(lon, lat, area)
     if area == :ca
-        fn = "data/ca-state-boundary/ca_bounds_4326.shp"
+        fn = "data/ca_bounds/ca_bounds_4326.shp"
     elseif area == :buff
         fn = "data/ca_buff_bounds/ca_buff.shp"
     end

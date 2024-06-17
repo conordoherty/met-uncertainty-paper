@@ -63,22 +63,22 @@ norm_stat_gr, norm_cache = apply(norm_pipe, stat_gr)
 
 vario = EmpiricalVariogram(norm_stat_gr, :dt_tmax, maxlag=KRIG_RANGE,
                            nlags=NLAGS,)
-#gamma = Variography.fit(PentasphericalVariogram, vario, h->3.5e5/h^2)
-#gamma = GeoStatsFunctions.fit(PentasphericalVariogram, vario, h->1)
 gamma = GeoStatsFunctions.fit(PentasphericalVariogram, vario, h->1)
 
-#xcoord, ycoord, grid_elev = get_grid_center_elev(pred_stat.x, pred_stat.y ; grid=GRID)
 out_points = PointSet(hcat(pred_stat.gridx, pred_stat.gridy)')
 
 sol = norm_stat_gr |>
 Interpolate(out_points, Kriging(gamma), prob=true,)
 
 num_samp = 10000
-out_points = PointSet(vcat(hcat(pred_stat.gridx, pred_stat.gridy), hcat(df_stats.x, df_stats.y))')
+out_points = PointSet(vcat(hcat(pred_stat.gridx, pred_stat.gridy),
+                           hcat(df_stats.x, df_stats.y))')
 lu = GeoStatsProcesses.LUMethod()
-sim = rand(GeoStatsProcesses.GaussianProcess(gamma), out_points, norm_stat_gr, num_samp, lu)
+sim = rand(GeoStatsProcesses.GaussianProcess(gamma), out_points,
+           norm_stat_gr, num_samp, lu)
 
-trend = ols_trend_apply(pred_stat.gridx, pred_stat.gridy, pred_stat.grid_elev,
+trend = ols_trend_apply(pred_stat.gridx, pred_stat.gridy,
+                        pred_stat.grid_elev,
                         df_stats.x, df_stats.y, df_stats.elev,
                         df_stats.tmax ; MAXLAG=TREND_RANGE,
                         MIN_TREND_STATS=MIN_TREND_STATS)
@@ -109,15 +109,11 @@ krig_samp = denorm_krig_samp .+ trend
 denorm_sim_samp = reduce(hcat, [denorm_samp(sim[i].dt_tmax[1:2]) for i in 1:num_samp])
 sim_samp = denorm_sim_samp .+ trend
 
-#Result(vario, gamma, df_stats, data, true_tmax, pred_stat, sol, detrend_quants[1, :])
-
-
 bw = 1.
 uk = kde(krig_samp' ; bandwidth=(bw,bw), npoints=(128, 128))
 us = kde(sim_samp' ; bandwidth=(bw,bw), npoints=(128, 128))
 
 low, high = extrema(vcat(krig_samp, sim_samp))
-#low, high = 25, 33
 xs = LinRange(low, high, 100)
 ys = LinRange(low, high, 100)
 
@@ -185,17 +181,14 @@ ax = Axis(f[1,1], ylabel="Density", xlabel="Tmax [C]")
 ylims!(ax, 0, .35)
 stephist!(ax, sim_samp[2,:], normalization=:pdf, label="p(S1)")
 println(mean(sim_samp[2,:]) - true_tmax[2], " ", std(sim_samp[2,:]))
-#lines!(ax, [mean(sim_samp[2,:]), mean(sim_samp[2,:])], [0, .4], linestyle=:dash)
 
 good = abs.(sim_samp[1, :] .- true_tmax[1]) .< 2
 stephist!(ax, sim_samp[2,good], normalization=:pdf, label="p(S1 | S2 error < 2)")
 println(mean(sim_samp[2,good]) - true_tmax[2], " ", std(sim_samp[2,good]))
-#lines!(ax, [mean(sim_samp[2,good]), mean(sim_samp[2,good])], [0, .4], linestyle=:dash)
 
 good = abs.(sim_samp[1, :] .- true_tmax[1]) .< 1
 stephist!(ax, sim_samp[2,good], normalization=:pdf, label="p(S1 | S2 error < 1)")
 println(mean(sim_samp[2,good]) - true_tmax[2], " ", std(sim_samp[2,good]))
-#lines!(ax, [mean(sim_samp[2,good]), mean(sim_samp[2,good])], [0, .4], linestyle=:dash)
 
 lines!(ax, [true_tmax[2], true_tmax[2]], [0, .4], color=:black, linestyle=:dash, label="Measured S1 Tmax")
 axislegend(ax, labelsize=8, patchsize=(12,8))

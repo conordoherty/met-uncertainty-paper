@@ -2,3 +2,4 @@ data/daymet_v4_stnxval_tmax_na_2022.nc
 output/*.jld2
 figs/*.pdf
 .DS_Store
+*.xml

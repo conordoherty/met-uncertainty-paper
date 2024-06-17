@@ -6,14 +6,14 @@ using CairoMakie
 include("utils/ghcn_data.jl")
 include("utils/ols_trend.jl")
 
-TREND_RANGE = 1.5e5
-KRIG_RANGE = 1.5e5
+TREND_RANGE = 1.0e5
+KRIG_RANGE = 1.0e5
 DOY = 187
 GRID = "1km"
 
 MIN_TREND_STATS = 10
 NLAGS = 10
-MAX_NEIGH = 25
+MAX_NEIGH = 100
 NODATA = -9999.
 
 quants = [.05, .25, .5, .75, .95]
@@ -77,8 +77,8 @@ for (i, DOY) in enumerate([1, 91, 182, 274])
               title=string(plot_labels[i*3-2]), titlealign=:left)
     arr3 = plot_arr(out_ras, detrend_quants[:, 3])
     h = heatmap!(ax, out_ras.xcoord ./ 1e3, out_ras.ycoord ./ 1e3, arr3,
-                 colormap=:inferno, colorrange=(-7.5, 47.0), rasterize=2)
-    Colorbar(g[1,2], h, label="Tmax (deg C)")
+                 colormap=:inferno, colorrange=(-10, 46.6), rasterize=2)
+    Colorbar(g[1,2], h, label="Tmax [C]")
     
     println(extrema(detrend_quants[:, 4] - detrend_quants[:, 2]))
     g = f[i,2] = GridLayout()
@@ -86,8 +86,8 @@ for (i, DOY) in enumerate([1, 91, 182, 274])
               title=string(plot_labels[i*3-1]), titlealign=:left)
     arr1 = plot_arr(out_ras, detrend_quants[:, 4] - detrend_quants[:, 2])
     h = heatmap!(ax, out_ras.xcoord ./ 1e3, out_ras.ycoord ./ 1e3, arr1,
-                 colormap=:turbo, colorrange=(1.1, 4.6), rasterize=2)
-    Colorbar(g[1,2], h, label="Magnitude of 50% prediction interval (deg C)")
+                 colormap=:turbo, colorrange=(1.15, 4.6), rasterize=2)
+    Colorbar(g[1,2], h, label="Magnitude of 50% prediction interval [C]")
     #scatter!(ax, df.x, df.y, color=:black)
     
     println(extrema(detrend_quants[:, 5] - detrend_quants[:, 1]))
@@ -96,8 +96,8 @@ for (i, DOY) in enumerate([1, 91, 182, 274])
               title=string(plot_labels[i*3]), titlealign=:left)
     arr2 = plot_arr(out_ras, detrend_quants[:, 5] - detrend_quants[:, 1])
     h = heatmap!(ax, out_ras.xcoord ./ 1e3, out_ras.ycoord ./ 1e3, arr2,
-                 colormap=:turbo, colorrange=(3.3, 10.5), rasterize=2)
-    Colorbar(g[1,2], h, label="Magnitude of 90% prediction interval (deg C)")
+                 colormap=:turbo, colorrange=(3.6, 11.1), rasterize=2)
+    Colorbar(g[1,2], h, label="Magnitude of 90% prediction interval [C]")
 end
 
 save("figs/fig06.pdf", f)

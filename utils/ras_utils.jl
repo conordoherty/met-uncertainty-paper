@@ -65,7 +65,6 @@ function write_raster(data_arr::Matrix{Float64}, out_filename::String, ras_meta:
     end
 end
 
-# extremely janky?
 function get_meta(fn::String)
     ras_meta = AG.read(fn) do ds
         gt = AG.getgeotransform(ds)
