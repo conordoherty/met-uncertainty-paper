@@ -9,7 +9,8 @@ function ols_trend_location(x, y, elev, obs ; x_mat_fn=make_X_mat)
     X \ obs
 end
 
-function ols_trend_domain(x, y, elev, obs ; MAXLAG=3.5e5, MIN_TREND_STATS=1,
+function ols_trend_domain(x, y, elev, obs ; MAXLAG=3.5e5,
+                          MIN_TREND_STATS=1,
                           x_mat_fn=make_X_mat)
     stat_locs = hcat(x, y)'
     tree = KDTree(stat_locs)
@@ -37,8 +38,10 @@ function ols_trend_domain(x, y, elev, obs ; MAXLAG=3.5e5, MIN_TREND_STATS=1,
     dt_obs, trend, stat_counts
 end
 
-function ols_trend_apply(x_pred, y_pred, elev_pred, x_obs, y_obs, elev_obs, obs
-                         ; MAXLAG=3.5e5, MIN_TREND_STATS=1, return_coefs=false)
+function ols_trend_apply(x_pred, y_pred, elev_pred, x_obs,
+                         y_obs, elev_obs, obs ;
+                         MAXLAG=3.5e5, MIN_TREND_STATS=1,
+                         return_coefs=false)
     stat_locs = hcat(x_obs, y_obs)'
     tree = KDTree(stat_locs)
 

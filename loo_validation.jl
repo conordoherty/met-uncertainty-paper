@@ -23,6 +23,10 @@ ints = [.99:-.01:.01...]
 
 df, tmax = north_am(2022 ; grid=GRID)
 
+# incorrect elevation for USR0000CPHI and USR0000CMS2
+# set elev = grid_elev
+df[df.elev .== 0, :elev] .= df[df.elev .== 0, :grid_elev]
+
 function run_location(ind, doy)
     # tmax for all stations on DOY
     data = tmax[doy, :]
@@ -68,9 +72,15 @@ function run_location(ind, doy)
 
     vario = EmpiricalVariogram(norm_stat_gr, :dt_tmax,
                                maxlag=KRIG_RANGE, nlags=NLAGS,)
-    gamma = GeoStatsFunctions.fit(PentasphericalVariogram, vario, h->1)
+    #gamma = GeoStatsFunctions.fit(PentasphericalVariogram,
+    #                              vario, h->1)
+    #gamma = GeoStatsFunctions.fit(ExponentialVariogram,
+    #                              vario, h->1)
+    gamma = GeoStatsFunctions.fit(SphericalVariogram,
+                                  vario, h->1)
  
-    out_points = PointSet(hcat(pred_stat.gridx, pred_stat.gridy)')
+    out_points = PointSet((pred_stat[1, :gridx],
+                           pred_stat[1, :gridy]))
 
     sol = norm_stat_gr |>
           InterpolateNeighbors(out_points, Kriging(gamma), prob=true,
@@ -98,8 +108,9 @@ function run_location(ind, doy)
     # calculate trend at prediction location
     trend = ols_trend_apply(pred_stat.gridx, pred_stat.gridy,
                             pred_stat.grid_elev,
-                            df_stats.x, df_stats.y, df_stats.elev,
-                            df_stats.tmax ; MAXLAG=TREND_RANGE,
+                            df_stats.x, df_stats.y,
+                            df_stats.elev, df_stats.tmax
+                            ; MAXLAG=TREND_RANGE,
                             MIN_TREND_STATS=MIN_TREND_STATS)
     pred_stat.trend = trend
 
@@ -112,5 +123,7 @@ end
 
 @showprogress Threads.@threads for DOY = 1:365
     res = [run_location(i, DOY) for i = 1:size(df, 1)]
-    jldsave("output/res_$DOY.jld2", res=res)
+    #jldsave("output/res_$DOY.jld2", res=res)
+    #jldsave("output/res_exp_$DOY.jld2", res=res)
+    jldsave("output/res_sph_$DOY.jld2", res=res)
 end

@@ -29,7 +29,7 @@ k = kde(pred_quants ; kernel=Epanechnikov)
 
 high_lim = 0.28
 f = Figure()
-ax = Axis(f[1,1], xlabel="Tmax [C]", ylabel="Density",
+ax = Axis(f[1,1], xlabel="Tmax [°C]", ylabel="Density",
           xgridvisible=false, ygridvisible=false)
 ylims!(ax, 0, high_lim)
 xlims!(ax, pred_quants[1], pred_quants[end])

@@ -89,6 +89,7 @@ function get_y_x_coords(geotransform::NTuple{6, Float64}, height::Int, width::In
 end
 
 get_y_x_coords(ras_meta::RasterMeta) = get_y_x_coords(ras_meta.geotransform, ras_meta.height, ras_meta.width)
+get_y_x_coords(geotransform::Vector{AbstractFloat}, height::Int, width::Int) = get_y_x_coords(Tuple(geotransform), height, width)
 
 function get_ras_arr(fn::String)
     # archgdal reads array as buffer (cols, rows)

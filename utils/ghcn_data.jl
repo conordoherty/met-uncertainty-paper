@@ -30,6 +30,8 @@ function check_in_bound(lon, lat, area)
         fn = "data/ca_bounds/ca_bounds_4326.shp"
     elseif area == :buff
         fn = "data/ca_buff_bounds/ca_buff.shp"
+    elseif area == :ok
+        fn = "data/ok_bounds/oklahoma_4326.shp"
     end
 
     bound = AG.read(fn) do f
@@ -43,7 +45,7 @@ function check_in_bound(lon, lat, area)
     AG.contains.((bound,), pts)
 end
 
-function north_am(yrs ; iter=1, area=:ca, proj_coord=true, grid="cimis_6km")
+function north_am(yrs ; iter=1, area=:buff, proj_coord=true, grid="cimis_6km")
     year = [yrs...][iter]
     ds = NCDataset("data/daymet_v4_stnxval_tmax_na_$year.nc")
 
@@ -53,7 +55,7 @@ function north_am(yrs ; iter=1, area=:ca, proj_coord=true, grid="cimis_6km")
     lon = ds["stn_lon"][:]
 
     good_stats = fill(true, length(ids))
-    good_stats = good_stats .& check_in_bound(lon, lat, :buff)
+    good_stats = good_stats .& check_in_bound(lon, lat, area)
 
     ids = ids[good_stats]
     ids = convert(Vector{String}, ids)
@@ -73,12 +75,14 @@ function north_am(yrs ; iter=1, area=:ca, proj_coord=true, grid="cimis_6km")
     df.x = [z[1] for z in p_coord]
     df.y = [z[2] for z in p_coord]
 
-    xind, yind, gridx, gridy, grid_elev = get_grid_center_elev(df.x, df.y ; grid=grid)
-    df.xind = xind
-    df.yind = yind
-    df.gridx = gridx
-    df.gridy = gridy
-    df.grid_elev = grid_elev
+    if grid != false
+        xind, yind, gridx, gridy, grid_elev = get_grid_center_elev(df.x, df.y ; grid=grid)
+        df.xind = xind
+        df.yind = yind
+        df.gridx = gridx
+        df.gridy = gridy
+        df.grid_elev = grid_elev
+    end
 
     if iter == length(yrs)
         # remove non-uniqe

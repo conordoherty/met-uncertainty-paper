@@ -11,7 +11,7 @@ include("utils/result.jl")
 
 TREND_RANGE = 1.0e5
 KRIG_RANGE = 1.0e5
-DOY = 94
+DOY = 182
 GRID = "1km"
 
 MIN_TREND_STATS = 1
@@ -52,8 +52,8 @@ size(same_coord, 1) >= 1 && return NODATA
 # detrend tmax, store in the df
 df_stats.tmax = data
 df_stats.dt_tmax, _ = ols_trend_domain(df_stats.x, df_stats.y,
-                                       df_stats.elev, data
-                                       ; MAXLAG=TREND_RANGE,
+                                       df_stats.elev, data ;
+                                       MAXLAG=TREND_RANGE,
                                        MIN_TREND_STATS=MIN_TREND_STATS)
 
 # normal score transform
@@ -61,18 +61,21 @@ stat_gr = georef(df_stats[:, [:x, :y, :dt_tmax]], (:x, :y))
 norm_pipe = Quantile()
 norm_stat_gr, norm_cache = apply(norm_pipe, stat_gr)
 
-vario = EmpiricalVariogram(norm_stat_gr, :dt_tmax, maxlag=KRIG_RANGE,
-                           nlags=NLAGS,)
+vario = EmpiricalVariogram(norm_stat_gr, :dt_tmax,
+                           maxlag=KRIG_RANGE, nlags=NLAGS,)
 gamma = GeoStatsFunctions.fit(PentasphericalVariogram, vario, h->1)
 
-out_points = PointSet(hcat(pred_stat.gridx, pred_stat.gridy)')
+out_points = PointSet(GeoStats.Point.(pred_stat.gridx,
+                                      pred_stat.gridy))
 
 sol = norm_stat_gr |>
 Interpolate(out_points, Kriging(gamma), prob=true,)
 
 num_samp = 10000
-out_points = PointSet(vcat(hcat(pred_stat.gridx, pred_stat.gridy),
-                           hcat(df_stats.x, df_stats.y))')
+out_points = PointSet(vcat(GeoStats.Point.(pred_stat.gridx,
+                                           pred_stat.gridy),
+                           GeoStats.Point.(df_stats.x,
+                                           df_stats.y)))
 lu = GeoStatsProcesses.LUMethod()
 sim = rand(GeoStatsProcesses.GaussianProcess(gamma), out_points,
            norm_stat_gr, num_samp, lu)
@@ -130,19 +133,19 @@ colsize!(gright, 1, 100)
 gleft = f[1:2, 1] = GridLayout()
 colsize!(gleft, 1, 320)
 
-xlow = 19.75
-xhigh = 29.25
-ylow = 19.75
-yhigh = 29.25
+xlow = 30.75
+xhigh = 44.25
+ylow = 30.75
+yhigh = 44.25
 
-ax = Axis(f[1,1],  xticklabelsize=0, ylabel="Location 1 marginal density",
+ax = Axis(f[1,1],  xticklabelsize=0, ylabel="Station 1 marginal density",
           ylabelsize=12, title="A", titlealign=:left)
 lines!(ax, ik.itp.itp.ranges[1], sum(ik.itp.itp.itp, dims=1)[:] ./ sqrt(sum(ik.itp.itp.itp)) ; color=:blue)
 lines!(ax, is.itp.itp.ranges[1], sum(is.itp.itp.itp, dims=1)[:] ./ sqrt(sum(is.itp.itp.itp)) ; color=:red)
 xlims!(ax, xlow, xhigh)
 ylims!(ax, 0., 0.22)
 
-ax = Axis(f[2,2],  yticklabelsize=0, xlabel="Location 2 marginal density",
+ax = Axis(f[2,2],  yticklabelsize=0, xlabel="Station 2 marginal density",
          xlabelsize=12, title="C", titlealign=:left)
 lines!(ax, sum(ik.itp.itp.itp, dims=2)[:] ./ sqrt(sum(ik.itp.itp.itp)),
        ik.itp.itp.ranges[2] ; color=:blue, label="Kriging density")
@@ -153,22 +156,20 @@ xlims!(ax, 0., 0.22)
 
 leg = Legend(f[1, 2], ax)
 leg.framecolor = :white
-
-
-ax = Axis(f[2,1], aspect=1, xlabel="Tmax location 1 [C]",
-          ylabel="Tmax location 2 [C]", title="B", titlealign=:left)
+ax = Axis(f[2,1], aspect=1, xlabel="Tmax station 1 [°C]",
+          ylabel="Tmax station 2 [°C]", title="B", titlealign=:left)
 contour!(ax, ik.itp.itp.ranges[1], ik.itp.itp.ranges[2], ik.itp.itp.itp ;
-        levels=5, color=:blue)
+        levels=6, color=:blue)
 contour!(ax, is.itp.itp.ranges[1], is.itp.itp.ranges[2], is.itp.itp.itp ;
-         levels=5, color=:red)
+         levels=6, color=:red)
 xlims!(ax, xlow, xhigh)
 ylims!(ax, ylow, yhigh)
 
 
 k_cor = string(cor(krig_samp')[1, 2])[1:5]
 s_cor = string(cor(sim_samp')[1, 2])[1:5]
-text!(ax, 25.7, 20.5, ; text="Kriging corr: $k_cor", color=:blue, fontsize=12)
-text!(ax, 25.7, 20, ; text="Simulation corr: $s_cor", color=:red, fontsize=12)
+text!(ax, 35.7, 31.5, ; text="Kriging corr: $k_cor", color=:blue, fontsize=12)
+text!(ax, 35.7, 31, ; text="Simulation corr: $s_cor", color=:red, fontsize=12)
 
 save("figs/fig07.pdf", f)
 
@@ -177,8 +178,8 @@ save("figs/fig07.pdf", f)
 mae(x, y) = mean(abs.(x .- y))
 
 f = Figure(size=(400,300))
-ax = Axis(f[1,1], ylabel="Density", xlabel="Tmax [C]")
-ylims!(ax, 0, .35)
+ax = Axis(f[1,1], ylabel="Density", xlabel="Tmax [°C]")
+ylims!(ax, 0, .375)
 stephist!(ax, sim_samp[2,:], normalization=:pdf, label="p(S1)")
 println(mean(sim_samp[2,:]) - true_tmax[2], " ", std(sim_samp[2,:]))
 

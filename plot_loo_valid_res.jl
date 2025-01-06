@@ -6,6 +6,7 @@ ints = [.99:-.01:.01...]
 mae(x, y) = x - y .|> abs |> mean
 
 int_day_loc = load("output/loo_valid_res.jld2")["int_day"]
+#int_day_loc = load("output/loo_valid_res_exp.jld2")["int_day"]
 
 bias_loc = mean(int_day_loc .- ints, dims=1)[1, :]
 mae_loc = mean(abs.(int_day_loc .- ints), dims=1)[1, :]
